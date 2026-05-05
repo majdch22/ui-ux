@@ -152,6 +152,14 @@
     .btn-next{padding:.75rem 2rem;border-radius:.75rem;background:#fff;color:#1d4ed8;font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 15px -3px rgba(0,0,50,.1);transition:all .2s;border:none;cursor:pointer;font-family:inherit}
     .btn-next:hover{background:#eff6ff}
     .mb-8{margin-bottom:2rem}
+
+    /* VALIDATION */
+    .form-input.err{border-color:#ef4444 !important;background:#fff7f7}
+    .err-msg{font-size:.75rem;color:#ef4444;margin-top:4px;display:none}
+    .err-msg.show{display:block}
+    .req{color:#ef4444;margin-left:2px;font-weight:700}
+    .btn-home{display:inline-flex;align-items:center;gap:8px;margin-top:1.5rem;padding:.75rem 2rem;background:#2563eb;color:#fff;font-weight:600;border-radius:.75rem;transition:all .2s;border:none;cursor:pointer;font-family:inherit;font-size:1rem}
+    .btn-home:hover{background:#1d4ed8;transform:translateY(-1px)}
   </style>
 </head>
 <body>
@@ -171,7 +179,7 @@ const T = {
     centers:['Centre Tunis - Centre Ville','Centre Ariana','Centre Ben Arous','Centre Manouba','Centre Sfax','Centre Sousse'],
     confirmTitle:'Récapitulatif de votre rendez-vous',confirmSubtitle:'Vérifiez vos informations avant de confirmer',
     labelName:'Nom complet',labelCar:'Véhicule',labelReg:'Immatriculation',labelCenter:'Centre',labelVisit:'Type de visite',labelDate:'Date',labelTime:'Heure',
-    nextButton:'Suivant',backButton:'Retour',confirmButton:'Confirmer le rendez-vous',successMessage:'Rendez-vous confirmé avec succès !',
+    nextButton:'Suivant',backButton:'Retour',confirmButton:'Confirmer le rendez-vous',successMessage:'Rendez-vous confirmé avec succès !',homeButton:'Nouveau rendez-vous',errRequired:'Ce champ est obligatoire',
     articles:[
       {id:1,tag:'Réglementation',tagClass:'tag-reg',title:'Nouvelles normes de contrôle technique 2024',excerpt:"La mise à jour des normes de contrôle technique introduit des exigences plus strictes pour les véhicules diesel, notamment en matière d'émissions polluantes.",date:'15 Jan 2024'},
       {id:2,tag:'Information',tagClass:'tag-info',title:"Périodicité du contrôle technique selon l'âge du véhicule",excerpt:"Rappel des échéances : les véhicules de moins de 4 ans sont exemptés, ceux entre 4 et 10 ans passent tous les 2 ans, et au-delà tous les ans.",date:'8 Mar 2024'},
@@ -191,7 +199,7 @@ const T = {
     centers:['Tunis Downtown Centre','Ariana Centre','Ben Arous Centre','Manouba Centre','Sfax Centre','Sousse Centre'],
     confirmTitle:'Appointment Summary',confirmSubtitle:'Please verify your details before confirming',
     labelName:'Full Name',labelCar:'Vehicle',labelReg:'License Plate',labelCenter:'Centre',labelVisit:'Visit Type',labelDate:'Date',labelTime:'Time',
-    nextButton:'Next',backButton:'Back',confirmButton:'Confirm Appointment',successMessage:'Appointment confirmed successfully!',
+    nextButton:'Next',backButton:'Back',confirmButton:'Confirm Appointment',successMessage:'Appointment confirmed successfully!',homeButton:'New Appointment',errRequired:'This field is required',
     articles:[
       {id:1,tag:'Regulation',tagClass:'tag-reg',title:'New 2024 Vehicle Inspection Standards',excerpt:'Updated inspection standards introduce stricter requirements for diesel vehicles, particularly regarding pollutant emissions.',date:'Jan 15, 2024'},
       {id:2,tag:'Information',tagClass:'tag-info',title:'Inspection Frequency by Vehicle Age',excerpt:'Reminder: vehicles under 4 years are exempt, those between 4–10 years are inspected every 2 years, and beyond that annually.',date:'Mar 8, 2024'},
@@ -211,7 +219,7 @@ const T = {
     centers:['مركز تونس وسط المدينة','مركز أريانة','مركز بن عروس','مركز منوبة','مركز صفاقس','مركز سوسة'],
     confirmTitle:'ملخص موعدك',confirmSubtitle:'تحقق من بياناتك قبل التأكيد',
     labelName:'الاسم الكامل',labelCar:'المركبة',labelReg:'رقم التسجيل',labelCenter:'المركز',labelVisit:'نوع الزيارة',labelDate:'التاريخ',labelTime:'الوقت',
-    nextButton:'التالي',backButton:'رجوع',confirmButton:'تأكيد الموعد',successMessage:'!تم تأكيد الموعد بنجاح',
+    nextButton:'التالي',backButton:'رجوع',confirmButton:'تأكيد الموعد',successMessage:'!تم تأكيد الموعد بنجاح',homeButton:'موعد جديد',errRequired:'هذا الحقل مطلوب',
     articles:[
       {id:1,tag:'لوائح',tagClass:'tag-reg',title:'معايير الفحص التقني الجديدة لعام 2024',excerpt:'تُقدّم معايير الفحص المحدّثة متطلبات أكثر صرامة للمركبات التي تعمل بالديزل، لا سيما فيما يتعلق بانبعاثات الملوثات.',date:'15 يناير 2024'},
       {id:2,tag:'معلومات',tagClass:'tag-info',title:'تكرار الفحص حسب عمر المركبة',excerpt:'تذكير بالمواعيد: المركبات التي لا يتجاوز عمرها 4 سنوات معفاة، وتلك بين 4 و10 سنوات تخضع للفحص كل سنتين، وما فوق ذلك سنوياً.',date:'8 مارس 2024'},
@@ -223,13 +231,25 @@ const T = {
 const SLOTS=['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
 const TODAY=new Date().toISOString().split('T')[0];
 
-const S={step:0,lang:'fr',confirmed:false,form:{name:'',firstName:'',carType:'',registration:'',center:'',visitType:'',date:'',time:''}};
+const S={step:0,lang:'fr',confirmed:false,validated:false,form:{name:'',firstName:'',carType:'',registration:'',center:'',visitType:'',date:'',time:''}};
 
-function goTo(n){S.step=n;render();window.scrollTo({top:0,behavior:'smooth'})}
+function goTo(n){S.step=n;S.validated=false;render();window.scrollTo({top:0,behavior:'smooth'})}
 function setLang(l){S.lang=l;render()}
-function setVT(v){S.form.visitType=v;document.querySelectorAll('.vt-btn').forEach(b=>{b.classList.toggle('sel',b.dataset.vt===v)})}
-function setTS(s){S.form.time=s;document.querySelectorAll('.ts-btn').forEach(b=>{b.classList.toggle('sel',b.dataset.slot===s)})}
+function setVT(v){S.form.visitType=v;if(S.validated){var m=document.getElementById('err-visitType');if(m)m.classList.remove('show')}document.querySelectorAll('.vt-btn').forEach(b=>{b.classList.toggle('sel',b.dataset.vt===v)})}
+function setTS(s){S.form.time=s;if(S.validated){var m=document.getElementById('err-time');if(m)m.classList.remove('show')}document.querySelectorAll('.ts-btn').forEach(b=>{b.classList.toggle('sel',b.dataset.slot===s)})}
 function doConfirm(){S.confirmed=true;render()}
+function clearErr(el,id){el.classList.remove('err');var m=document.getElementById('err-'+id);if(m)m.classList.remove('show')}
+function tryNext(n){
+  var ok=true;
+  if(n===3){ok=S.form.name.trim()&&S.form.firstName.trim()&&S.form.carType.trim()&&S.form.registration.trim()}
+  else if(n===4){ok=S.form.center&&S.form.visitType&&S.form.date&&S.form.time}
+  if(ok){goTo(n)}else{S.validated=true;render();window.scrollTo({top:0,behavior:'smooth'})}
+}
+function resetAndHome(){
+  S.step=1;S.confirmed=false;S.validated=false;
+  S.form={name:'',firstName:'',carType:'',registration:'',center:'',visitType:'',date:'',time:''};
+  render();window.scrollTo({top:0,behavior:'smooth'});
+}
 
 const IC={
   shield:`<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:20px;height:20px"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>`,
@@ -359,6 +379,15 @@ function stepper(){
 
 function personalStep(){
   const t=T[S.lang];
+  const v=S.validated;
+  function fi(id,val,ph,icon){
+    const e=v&&!val.trim();
+    return `<div>
+      ${icon?`<div class="field-icon">${icon}</div>`:''}
+      <input class="form-input${icon?' icon':''}${e?' err':''}" type="text" id="inp-${id}" value="${esc(val)}" placeholder="${ph}" oninput="S.form.${id}=this.value;clearErr(this,'${id}')">
+      <p id="err-${id}" class="err-msg${e?' show':''}">${t.errRequired}</p>
+    </div>`;
+  }
   return `<div class="form-card fade-up">
     <div class="form-card-hdr">
       <div class="form-card-icon">${IC.person}</div>
@@ -366,33 +395,28 @@ function personalStep(){
     </div>
     <div class="form-grid">
       <div>
-        <label class="field-label">${t.name}</label>
-        <input class="form-input" type="text" value="${esc(S.form.name)}" placeholder="${t.namePH}" oninput="S.form.name=this.value">
+        <label class="field-label">${t.name}<span class="req">*</span></label>
+        <div class="field-wrap">${fi('name',S.form.name,t.namePH,'')}</div>
       </div>
       <div>
-        <label class="field-label">${t.firstName}</label>
-        <input class="form-input" type="text" value="${esc(S.form.firstName)}" placeholder="${t.firstNamePH}" oninput="S.form.firstName=this.value">
+        <label class="field-label">${t.firstName}<span class="req">*</span></label>
+        <div class="field-wrap">${fi('firstName',S.form.firstName,t.firstNamePH,'')}</div>
       </div>
       <div>
-        <label class="field-label">${t.carType}</label>
-        <div class="field-wrap">
-          <div class="field-icon">${IC.car}</div>
-          <input class="form-input icon" type="text" value="${esc(S.form.carType)}" placeholder="${t.carTypePH}" oninput="S.form.carType=this.value">
-        </div>
+        <label class="field-label">${t.carType}<span class="req">*</span></label>
+        <div class="field-wrap">${fi('carType',S.form.carType,t.carTypePH,IC.car)}</div>
       </div>
       <div>
-        <label class="field-label">${t.registration}</label>
-        <div class="field-wrap">
-          <div class="field-icon">${IC.plate}</div>
-          <input class="form-input icon" type="text" value="${esc(S.form.registration)}" placeholder="${t.regPH}" oninput="S.form.registration=this.value">
-        </div>
+        <label class="field-label">${t.registration}<span class="req">*</span></label>
+        <div class="field-wrap">${fi('registration',S.form.registration,t.regPH,IC.plate)}</div>
       </div>
     </div>
   </div>`;
 }
 
 function centerStep(){
-  const t=T[S.lang];
+  const t=T[S.lang];const v=S.validated;
+  const eCenter=v&&!S.form.center,eVT=v&&!S.form.visitType,eDate=v&&!S.form.date,eTime=v&&!S.form.time;
   return `<div class="form-card fade-up">
     <div class="form-card-hdr">
       <div class="form-card-icon">${IC.pin}</div>
@@ -400,33 +424,37 @@ function centerStep(){
     </div>
     <div class="field-group">
       <div>
-        <label class="field-label">${t.center}</label>
+        <label class="field-label">${t.center}<span class="req">*</span></label>
         <div class="sel-wrap">
-          <select class="form-input" onchange="S.form.center=this.value">
+          <select class="form-input${eCenter?' err':''}" onchange="S.form.center=this.value;clearErr(this,'center')">
             <option value="">${t.selectCenter}</option>
             ${t.centers.map(c=>`<option value="${c}"${S.form.center===c?' selected':''}>${c}</option>`).join('')}
           </select>
           <div class="sel-arr">${IC.chevD}</div>
         </div>
+        <p id="err-center" class="err-msg${eCenter?' show':''}">${t.errRequired}</p>
       </div>
       <div>
-        <label class="field-label">${t.visitType}</label>
+        <label class="field-label">${t.visitType}<span class="req">*</span></label>
         <div class="visit-grid">
-          ${t.visitTypes.map(v=>`<button class="vt-btn${S.form.visitType===v?' sel':''}" data-vt="${v}" onclick="setVT('${v}')">${v}</button>`).join('')}
+          ${t.visitTypes.map(vt=>`<button class="vt-btn${S.form.visitType===vt?' sel':''}" data-vt="${vt}" onclick="setVT('${vt}')">${vt}</button>`).join('')}
         </div>
+        <p id="err-visitType" class="err-msg${eVT?' show':''}">${t.errRequired}</p>
       </div>
       <div>
-        <label class="field-label">${t.date}</label>
+        <label class="field-label">${t.date}<span class="req">*</span></label>
         <div class="field-wrap">
           <div class="field-icon">${IC.cal}</div>
-          <input class="form-input icon" type="date" value="${S.form.date}" min="${TODAY}" onchange="S.form.date=this.value">
+          <input class="form-input icon${eDate?' err':''}" type="date" value="${S.form.date}" min="${TODAY}" onchange="S.form.date=this.value;clearErr(this,'date')">
         </div>
+        <p id="err-date" class="err-msg${eDate?' show':''}">${t.errRequired}</p>
       </div>
       <div>
-        <label class="field-label">${t.time}</label>
+        <label class="field-label">${t.time}<span class="req">*</span></label>
         <div class="time-grid">
           ${SLOTS.map(sl=>`<button class="ts-btn${S.form.time===sl?' sel':''}" data-slot="${sl}" onclick="setTS('${sl}')">${sl}</button>`).join('')}
         </div>
+        <p id="err-time" class="err-msg${eTime?' show':''}">${t.errRequired}</p>
       </div>
     </div>
   </div>`;
@@ -440,6 +468,7 @@ function confirmStep(){
         <div class="success-icon">${IC.checkOk}</div>
         <h2 class="success-title">${t.successMessage}</h2>
         <p class="success-info">${S.form.date} — ${S.form.time} · ${S.form.center}</p>
+        <button class="btn-home" onclick="resetAndHome()">${IC.calBook} ${t.homeButton}</button>
       </div>
     </div>`;
   }
@@ -479,7 +508,7 @@ function formSection(){
       </div>
       ${!S.confirmed?`<div class="nav-btns">
         <button class="btn-back" onclick="goTo(${S.step-1})">${backArr} ${t.backButton}</button>
-        ${S.step<4?`<button class="btn-next" onclick="goTo(${S.step+1})">${t.nextButton} ${nextArr}</button>`:''}
+        ${S.step<4?`<button class="btn-next" onclick="tryNext(${S.step+1})">${t.nextButton} ${nextArr}</button>`:''}
       </div>`:''}
     </div>
   </div>`;
