@@ -1,19 +1,503 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Centre de Contrôle Technique</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
-    <style>
-      html, body { height: 100%; margin: 0; }
-      #root { height: 100%; }
-    </style>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centre de Contrôle Technique</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Outfit',sans-serif;background:#f9fafb;min-height:100vh;color:#111827}
+    button{cursor:pointer;font-family:inherit;border:none;background:none}
+    input,select{font-family:inherit}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .fade-up{animation:fadeUp 0.5s ease forwards}
+    .fade-in{animation:fadeIn 0.4s ease forwards}
+
+    /* HEADER */
+    .header{background:#fff;border-bottom:1px solid #f3f4f6;position:sticky;top:0;z-index:50;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .header-inner{max-width:1280px;margin:0 auto;padding:0 1rem;height:64px;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:12px}
+    .logo-icon{width:36px;height:36px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .logo-name{font-family:'Syne',sans-serif;color:#1d4ed8;font-weight:700;font-size:1.1rem;line-height:1;display:block}
+    .logo-sub{font-size:.75rem;color:#9ca3af;font-weight:300}
+    .lang-sw{display:flex;gap:4px;background:#f3f4f6;border-radius:8px;padding:4px}
+    .lang-btn{padding:6px 12px;border-radius:6px;font-size:.875rem;font-weight:500;display:flex;align-items:center;gap:6px;transition:all .2s;color:#6b7280}
+    .lang-btn.active{background:#fff;color:#1d4ed8;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .lang-btn:hover:not(.active){color:#374151}
+
+    /* LANGUAGE SELECTOR PAGE */
+    .lang-page{min-height:calc(100vh - 64px);display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(to bottom,#eff6ff,#fff);padding:4rem 1rem}
+    .lang-globe{width:80px;height:80px;background:#2563eb;border-radius:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 25px -5px rgba(37,99,235,.3);margin:0 auto 2rem}
+    .lang-h1{font-family:'Syne',sans-serif;font-size:1.875rem;font-weight:700;color:#111827;margin-bottom:8px;text-align:center}
+    .lang-p{color:#6b7280;font-size:1rem;text-align:center;margin-bottom:2.5rem}
+    .lang-opts{display:flex;flex-direction:column;gap:1rem;width:100%;max-width:672px;margin-bottom:2.5rem}
+    @media(min-width:640px){.lang-opts{flex-direction:row}}
+    .lang-card{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:1.5rem;border-radius:1rem;border:2px solid #e5e7eb;background:#fff;transition:all .2s;cursor:pointer}
+    .lang-card.sel{border-color:#3b82f6;background:#eff6ff;box-shadow:0 4px 6px -1px rgba(59,130,246,.15)}
+    .lang-card:hover:not(.sel){border-color:#93c5fd;background:rgba(239,246,255,.5)}
+    .lang-flag{font-size:2.5rem}
+    .lang-native{font-size:1.125rem;font-weight:600;color:#1f2937}
+    .lang-card.sel .lang-native{color:#1d4ed8}
+    .lang-sub{font-size:.75rem;color:#9ca3af;margin-top:2px}
+    .lang-check{width:20px;height:20px;border-radius:50%;background:#2563eb;display:flex;align-items:center;justify-content:center}
+    .btn-primary{display:inline-flex;align-items:center;gap:8px;padding:.875rem 2.5rem;background:#2563eb;color:#fff;font-weight:600;font-size:1rem;border-radius:.75rem;box-shadow:0 10px 15px -3px rgba(37,99,235,.2);transition:all .2s}
+    .btn-primary:hover{background:#1d4ed8;transform:translateY(-1px);box-shadow:0 20px 25px -5px rgba(37,99,235,.25)}
+
+    /* ARTICLES */
+    .art-hero{background:linear-gradient(135deg,#1d4ed8,#2563eb,#3b82f6);color:#fff;padding:3.5rem 1rem}
+    .art-hero-inner{max-width:1152px;margin:0 auto;display:flex;flex-direction:column;gap:1.5rem;align-items:flex-start}
+    @media(min-width:640px){.art-hero-inner{flex-direction:row;align-items:center;justify-content:space-between}}
+    .art-tagline{font-size:.75rem;font-weight:500;color:#bfdbfe;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+    .art-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:700;line-height:1.2}
+    @media(min-width:640px){.art-title{font-size:2.25rem}}
+    .art-subtitle{margin-top:8px;color:#bfdbfe;font-size:1rem;max-width:40rem}
+    .btn-book{display:inline-flex;align-items:center;gap:12px;background:#fff;color:#1d4ed8;font-weight:700;font-size:1rem;padding:1rem 1.75rem;border-radius:1rem;box-shadow:0 10px 15px -3px rgba(0,0,0,.1);transition:all .2s;white-space:nowrap}
+    .btn-book:hover{background:#eff6ff;transform:translateY(-1px);box-shadow:0 20px 25px -5px rgba(0,0,0,.1)}
+    .btn-book-icon{width:32px;height:32px;background:#2563eb;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0}
+    .btn-book:hover .btn-book-icon{background:#1d4ed8}
+    .art-grid-wrap{max-width:1152px;margin:0 auto;padding:3rem 1rem}
+    .art-grid{display:grid;grid-template-columns:1fr;gap:1.5rem}
+    @media(min-width:768px){.art-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1024px){.art-grid{grid-template-columns:repeat(3,1fr)}}
+    .art-card{background:#fff;border-radius:1rem;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05);border:1px solid #f3f4f6;transition:all .3s;display:flex;flex-direction:column}
+    .art-card:hover{box-shadow:0 4px 6px -1px rgba(0,0,0,.07);transform:translateY(-4px)}
+    .art-accent{height:6px;background:linear-gradient(to right,#3b82f6,#60a5fa)}
+    .art-body{padding:1.5rem;display:flex;flex-direction:column;flex:1}
+    .art-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .art-tag{font-size:.75rem;font-weight:600;padding:4px 10px;border-radius:9999px}
+    .tag-reg{background:#fee2e2;color:#b91c1c}
+    .tag-info{background:#dbeafe;color:#1d4ed8}
+    .tag-tip{background:#dcfce7;color:#15803d}
+    .art-date{font-size:.75rem;color:#9ca3af}
+    .art-card-title{font-family:'Syne',sans-serif;color:#111827;font-weight:700;font-size:1.125rem;line-height:1.3;margin-bottom:.75rem}
+    .art-excerpt{color:#6b7280;font-size:.875rem;line-height:1.625;flex:1}
+    .art-read-more{margin-top:1.25rem;color:#2563eb;font-size:.875rem;font-weight:600;display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;transition:color .2s}
+    .art-read-more:hover{color:#1d4ed8}
+
+    /* FORM SECTION */
+    .form-section{background:linear-gradient(135deg,#2563eb,#3b82f6,#60a5fa);min-height:calc(100vh - 64px)}
+    .form-inner{max-width:768px;margin:0 auto;padding:3rem 1rem}
+
+    /* STEPPER */
+    .stepper{display:flex;margin-bottom:2.5rem}
+    .step-col{display:flex;flex-direction:column;align-items:center;flex:1}
+    .step-row{display:flex;align-items:center;width:100%}
+    .step-line{flex:1;height:2px;transition:background .3s}
+    .step-line.done{background:#fff}
+    .step-line.pend{background:#93c5fd}
+    .step-circle{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.875rem;font-weight:700;flex-shrink:0;transition:all .3s}
+    .step-circle.done{background:#fff;color:#2563eb}
+    .step-circle.curr{background:#fff;color:#2563eb;box-shadow:0 0 0 4px #93c5fd}
+    .step-circle.pend{background:#60a5fa;color:#fff}
+    .step-label{font-size:.75rem;margin-top:8px;color:rgba(255,255,255,.8);font-weight:500;text-align:center;max-width:100px;display:none}
+    @media(min-width:640px){.step-label{display:block}}
+
+    /* FORM CARD */
+    .form-card{background:#fff;border-radius:1rem;border:1px solid #f3f4f6;padding:2rem;max-width:672px;margin:0 auto;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+    .form-card-hdr{margin-bottom:2rem}
+    .form-card-icon{width:48px;height:48px;background:#eff6ff;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem}
+    .form-card-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:#111827}
+    .form-grid{display:grid;grid-template-columns:1fr;gap:1.25rem}
+    @media(min-width:640px){.form-grid{grid-template-columns:repeat(2,1fr)}}
+    .field-label{display:block;font-size:.875rem;font-weight:600;color:#374151;margin-bottom:6px}
+    .field-wrap{position:relative}
+    .field-icon{position:absolute;top:0;bottom:0;left:12px;display:flex;align-items:center;pointer-events:none;color:#9ca3af}
+    [dir=rtl] .field-icon{left:auto;right:12px}
+    .form-input{width:100%;border:1px solid #e5e7eb;border-radius:.75rem;padding:.625rem 1rem;font-size:.875rem;color:#1f2937;background:#f9fafb;outline:none;transition:all .2s}
+    .form-input.icon{padding-left:2.25rem}
+    [dir=rtl] .form-input.icon{padding-left:1rem;padding-right:2.25rem}
+    .form-input:focus{background:#fff;border-color:transparent;box-shadow:0 0 0 2px #3b82f6}
+    .form-input::placeholder{color:#9ca3af}
+    select.form-input{appearance:none;-webkit-appearance:none}
+    .sel-wrap{position:relative}
+    .sel-arr{position:absolute;top:0;bottom:0;right:12px;display:flex;align-items:center;pointer-events:none;color:#9ca3af}
+    [dir=rtl] .sel-arr{right:auto;left:12px}
+    .visit-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:640px){.visit-grid{grid-template-columns:repeat(3,1fr)}}
+    .vt-btn{border:2px solid #e5e7eb;border-radius:.75rem;padding:.75rem 1rem;font-size:.875rem;font-weight:500;text-align:center;background:#f9fafb;color:#4b5563;transition:all .15s;cursor:pointer;font-family:inherit}
+    .vt-btn.sel{border-color:#3b82f6;background:#eff6ff;color:#1d4ed8}
+    .vt-btn:hover:not(.sel){border-color:#d1d5db}
+    .time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    @media(min-width:640px){.time-grid{grid-template-columns:repeat(7,1fr)}}
+    .ts-btn{border-radius:8px;padding:8px 4px;font-size:.75rem;font-weight:600;text-align:center;background:#f3f4f6;color:#4b5563;transition:all .15s;cursor:pointer;border:none;font-family:inherit}
+    .ts-btn.sel{background:#2563eb;color:#fff;box-shadow:0 4px 6px -1px rgba(37,99,235,.3)}
+    .ts-btn:hover:not(.sel){background:#e5e7eb}
+    .field-group{display:flex;flex-direction:column;gap:1.25rem}
+
+    /* CONFIRMATION */
+    .summary-tbl{border:1px solid #f3f4f6;border-radius:.75rem;overflow:hidden;margin-bottom:2rem}
+    .sum-row{display:flex;align-items:center;padding:.875rem 1rem;background:#f9fafb;border-bottom:1px solid #f3f4f6;transition:background .2s}
+    .sum-row:last-child{border-bottom:none}
+    .sum-row:hover{background:#f3f4f6}
+    .sum-icon{font-size:1.125rem;margin-right:12px;flex-shrink:0}
+    [dir=rtl] .sum-icon{margin-right:0;margin-left:12px}
+    .sum-label{font-size:.875rem;color:#6b7280;font-weight:500;min-width:130px}
+    .sum-val{font-size:.875rem;color:#111827;font-weight:600}
+    .btn-confirm{width:100%;padding:.875rem;background:#16a34a;color:#fff;font-weight:700;font-size:1rem;border-radius:.75rem;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 15px -3px rgba(22,163,74,.2);transition:all .2s;border:none;cursor:pointer;font-family:inherit}
+    .btn-confirm:hover{background:#15803d}
+    .success-card{text-align:center;padding:2.5rem 2rem}
+    .success-icon{width:80px;height:80px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+    .success-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;color:#111827;margin-bottom:.75rem}
+    .success-info{color:#6b7280;font-size:.875rem}
+
+    /* NAV BUTTONS */
+    .nav-btns{display:flex;justify-content:center;gap:12px}
+    .btn-back{padding:.75rem 1.5rem;border-radius:.75rem;background:rgba(255,255,255,.2);color:#fff;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all .2s;backdrop-filter:blur(4px);border:none;cursor:pointer;font-family:inherit}
+    .btn-back:hover{background:rgba(255,255,255,.3)}
+    .btn-next{padding:.75rem 2rem;border-radius:.75rem;background:#fff;color:#1d4ed8;font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:0 10px 15px -3px rgba(0,0,50,.1);transition:all .2s;border:none;cursor:pointer;font-family:inherit}
+    .btn-next:hover{background:#eff6ff}
+    .mb-8{margin-bottom:2rem}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const T = {
+  fr:{
+    siteName:'Centre Technique',tagline:'Contrôle Technique Officiel',
+    chooseLanguage:'Choisissez votre langue',chooseLanguageSubtitle:'Sélectionnez la langue dans laquelle vous souhaitez naviguer',continueButton:'Continuer',
+    articlesTitle:'Informations & Actualités',articlesSubtitle:'Restez informé des dernières mises à jour du contrôle technique',bookButton:'Prendre Rendez-vous',readMore:'Lire plus',
+    stepPersonal:'Informations personnelles',stepCenter:'Centre & Horaire',stepConfirm:'Confirmation',
+    personalTitle:'Vos informations personnelles',name:'Nom',firstName:'Prénom',carType:'Type de véhicule',registration:"Numéro d'immatriculation",
+    namePH:'Entrez votre nom',firstNamePH:'Entrez votre prénom',carTypePH:'Ex: Berline, SUV, Utilitaire...',regPH:'Ex: 12345 TUN 01',
+    centerTitle:'Choisissez votre centre',center:'Centre de contrôle',visitType:'Type de visite',date:'Date souhaitée',time:'Heure souhaitée',
+    selectCenter:'Sélectionner un centre',selectVisitType:'Sélectionner le type de visite',
+    visitTypes:['Contrôle périodique','Contre-visite','Première immatriculation'],
+    centers:['Centre Tunis - Centre Ville','Centre Ariana','Centre Ben Arous','Centre Manouba','Centre Sfax','Centre Sousse'],
+    confirmTitle:'Récapitulatif de votre rendez-vous',confirmSubtitle:'Vérifiez vos informations avant de confirmer',
+    labelName:'Nom complet',labelCar:'Véhicule',labelReg:'Immatriculation',labelCenter:'Centre',labelVisit:'Type de visite',labelDate:'Date',labelTime:'Heure',
+    nextButton:'Suivant',backButton:'Retour',confirmButton:'Confirmer le rendez-vous',successMessage:'Rendez-vous confirmé avec succès !',
+    articles:[
+      {id:1,tag:'Réglementation',tagClass:'tag-reg',title:'Nouvelles normes de contrôle technique 2024',excerpt:"La mise à jour des normes de contrôle technique introduit des exigences plus strictes pour les véhicules diesel, notamment en matière d'émissions polluantes.",date:'15 Jan 2024'},
+      {id:2,tag:'Information',tagClass:'tag-info',title:"Périodicité du contrôle technique selon l'âge du véhicule",excerpt:"Rappel des échéances : les véhicules de moins de 4 ans sont exemptés, ceux entre 4 et 10 ans passent tous les 2 ans, et au-delà tous les ans.",date:'8 Mar 2024'},
+      {id:3,tag:'Conseil',tagClass:'tag-tip',title:'Préparez votre véhicule avant le contrôle',excerpt:'Quelques vérifications simples avant votre passage au centre peuvent vous éviter une contre-visite : éclairages, pneus, niveaux et freins.',date:'22 Apr 2024'},
+    ]
+  },
+  en:{
+    siteName:'Technical Centre',tagline:'Official Vehicle Inspection',
+    chooseLanguage:'Choose your language',chooseLanguageSubtitle:'Select the language you wish to browse in',continueButton:'Continue',
+    articlesTitle:'Information & News',articlesSubtitle:'Stay informed about the latest vehicle inspection updates',bookButton:'Book an Appointment',readMore:'Read more',
+    stepPersonal:'Personal Information',stepCenter:'Centre & Schedule',stepConfirm:'Confirmation',
+    personalTitle:'Your personal information',name:'Last Name',firstName:'First Name',carType:'Vehicle Type',registration:'License Plate Number',
+    namePH:'Enter your last name',firstNamePH:'Enter your first name',carTypePH:'E.g: Sedan, SUV, Van...',regPH:'E.g: 12345 TUN 01',
+    centerTitle:'Choose your centre',center:'Inspection Centre',visitType:'Visit Type',date:'Preferred Date',time:'Preferred Time',
+    selectCenter:'Select a centre',selectVisitType:'Select visit type',
+    visitTypes:['Periodic Inspection','Re-inspection','First Registration'],
+    centers:['Tunis Downtown Centre','Ariana Centre','Ben Arous Centre','Manouba Centre','Sfax Centre','Sousse Centre'],
+    confirmTitle:'Appointment Summary',confirmSubtitle:'Please verify your details before confirming',
+    labelName:'Full Name',labelCar:'Vehicle',labelReg:'License Plate',labelCenter:'Centre',labelVisit:'Visit Type',labelDate:'Date',labelTime:'Time',
+    nextButton:'Next',backButton:'Back',confirmButton:'Confirm Appointment',successMessage:'Appointment confirmed successfully!',
+    articles:[
+      {id:1,tag:'Regulation',tagClass:'tag-reg',title:'New 2024 Vehicle Inspection Standards',excerpt:'Updated inspection standards introduce stricter requirements for diesel vehicles, particularly regarding pollutant emissions.',date:'Jan 15, 2024'},
+      {id:2,tag:'Information',tagClass:'tag-info',title:'Inspection Frequency by Vehicle Age',excerpt:'Reminder: vehicles under 4 years are exempt, those between 4–10 years are inspected every 2 years, and beyond that annually.',date:'Mar 8, 2024'},
+      {id:3,tag:'Tips',tagClass:'tag-tip',title:'Prepare Your Vehicle Before Inspection',excerpt:'A few simple checks before your visit can help you avoid a re-inspection: lights, tires, fluid levels, and brakes.',date:'Apr 22, 2024'},
+    ]
+  },
+  ar:{
+    siteName:'المركز التقني',tagline:'الفحص التقني الرسمي للمركبات',
+    chooseLanguage:'اختر لغتك',chooseLanguageSubtitle:'حدد اللغة التي تريد التصفح بها',continueButton:'متابعة',
+    articlesTitle:'المعلومات والأخبار',articlesSubtitle:'ابق على اطلاع بأحدث تحديثات الفحص التقني',bookButton:'حجز موعد',readMore:'اقرأ المزيد',
+    stepPersonal:'المعلومات الشخصية',stepCenter:'المركز والموعد',stepConfirm:'التأكيد',
+    personalTitle:'معلوماتك الشخصية',name:'اللقب',firstName:'الاسم',carType:'نوع المركبة',registration:'رقم التسجيل',
+    namePH:'أدخل لقبك',firstNamePH:'أدخل اسمك',carTypePH:'مثال: سيدان، SUV، شاحنة...',regPH:'مثال: 12345 TUN 01',
+    centerTitle:'اختر مركزك',center:'مركز الفحص',visitType:'نوع الزيارة',date:'التاريخ المفضل',time:'الوقت المفضل',
+    selectCenter:'اختر مركزاً',selectVisitType:'اختر نوع الزيارة',
+    visitTypes:['فحص دوري','إعادة الفحص','التسجيل الأول'],
+    centers:['مركز تونس وسط المدينة','مركز أريانة','مركز بن عروس','مركز منوبة','مركز صفاقس','مركز سوسة'],
+    confirmTitle:'ملخص موعدك',confirmSubtitle:'تحقق من بياناتك قبل التأكيد',
+    labelName:'الاسم الكامل',labelCar:'المركبة',labelReg:'رقم التسجيل',labelCenter:'المركز',labelVisit:'نوع الزيارة',labelDate:'التاريخ',labelTime:'الوقت',
+    nextButton:'التالي',backButton:'رجوع',confirmButton:'تأكيد الموعد',successMessage:'!تم تأكيد الموعد بنجاح',
+    articles:[
+      {id:1,tag:'لوائح',tagClass:'tag-reg',title:'معايير الفحص التقني الجديدة لعام 2024',excerpt:'تُقدّم معايير الفحص المحدّثة متطلبات أكثر صرامة للمركبات التي تعمل بالديزل، لا سيما فيما يتعلق بانبعاثات الملوثات.',date:'15 يناير 2024'},
+      {id:2,tag:'معلومات',tagClass:'tag-info',title:'تكرار الفحص حسب عمر المركبة',excerpt:'تذكير بالمواعيد: المركبات التي لا يتجاوز عمرها 4 سنوات معفاة، وتلك بين 4 و10 سنوات تخضع للفحص كل سنتين، وما فوق ذلك سنوياً.',date:'8 مارس 2024'},
+      {id:3,tag:'نصائح',tagClass:'tag-tip',title:'جهّز مركبتك قبل الفحص',excerpt:'بعض الفحوصات البسيطة قبل زيارتك يمكن أن تجنبك إعادة الفحص: الأضواء، الإطارات، مستويات السوائل، والمكابح.',date:'22 أبريل 2024'},
+    ]
+  }
+};
+
+const SLOTS=['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+const TODAY=new Date().toISOString().split('T')[0];
+
+const S={step:0,lang:'fr',confirmed:false,form:{name:'',firstName:'',carType:'',registration:'',center:'',visitType:'',date:'',time:''}};
+
+function goTo(n){S.step=n;render();window.scrollTo({top:0,behavior:'smooth'})}
+function setLang(l){S.lang=l;render()}
+function setVT(v){S.form.visitType=v;document.querySelectorAll('.vt-btn').forEach(b=>{b.classList.toggle('sel',b.dataset.vt===v)})}
+function setTS(s){S.form.time=s;document.querySelectorAll('.ts-btn').forEach(b=>{b.classList.toggle('sel',b.dataset.slot===s)})}
+function doConfirm(){S.confirmed=true;render()}
+
+const IC={
+  shield:`<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:20px;height:20px"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>`,
+  globe:`<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" style="width:40px;height:40px"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 21l5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 016-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 01-3.827-5.802"/></svg>`,
+  checkSm:`<svg viewBox="0 0 20 20" fill="white" style="width:12px;height:12px"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>`,
+  arrR:`<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>`,
+  arrRlg:`<svg viewBox="0 0 20 20" fill="currentColor" style="width:20px;height:20px"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>`,
+  arrL:`<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;transform:rotate(180deg)"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>`,
+  checkStep:`<svg viewBox="0 0 20 20" fill="currentColor" style="width:20px;height:20px"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>`,
+  person:`<svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="width:24px;height:24px"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`,
+  pin:`<svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="width:24px;height:24px"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
+  clip:`<svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="width:24px;height:24px"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>`,
+  car:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>`,
+  plate:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px"><rect x="3" y="6" width="18" height="12" rx="2"/><path stroke-linecap="round" d="M7 10h1m3 0h4M7 14h10"/></svg>`,
+  cal:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  calBook:`<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:16px;height:16px"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  chevD:`<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>`,
+  checkConf:`<svg viewBox="0 0 20 20" fill="currentColor" style="width:20px;height:20px"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>`,
+  checkOk:`<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" style="width:40px;height:40px"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`
+};
+
+function hdr(){
+  const t=T[S.lang];
+  return `<header class="header"><div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">${IC.shield}</div>
+      <div><span class="logo-name">${t.siteName}</span><span class="logo-sub">${t.tagline}</span></div>
+    </div>
+    <div class="lang-sw">
+      <button class="lang-btn${S.lang==='fr'?' active':''}" onclick="setLang('fr')">🇫🇷 FR</button>
+      <button class="lang-btn${S.lang==='en'?' active':''}" onclick="setLang('en')">🇬🇧 EN</button>
+      <button class="lang-btn${S.lang==='ar'?' active':''}" onclick="setLang('ar')">🇹🇳 AR</button>
+    </div>
+  </div></header>`;
+}
+
+function langPage(){
+  const t=T[S.lang];
+  const langs=[
+    {code:'fr',native:'Français',flag:'🇫🇷',sub:'French'},
+    {code:'en',native:'English',flag:'🇬🇧',sub:'Anglais / الإنجليزية'},
+    {code:'ar',native:'العربية',flag:'🇹🇳',sub:'Arabic / Arabe'},
+  ];
+  return `<div class="lang-page">
+    <div class="lang-globe fade-up">${IC.globe}</div>
+    <div class="fade-up" style="animation-delay:.1s;opacity:0;animation-fill-mode:forwards;text-align:center">
+      <h1 class="lang-h1">${t.chooseLanguage}</h1>
+      <p class="lang-p">${t.chooseLanguageSubtitle}</p>
+    </div>
+    <div class="lang-opts">
+      ${langs.map((l,i)=>`
+        <button class="lang-card${S.lang===l.code?' sel':''} fade-up"
+          style="animation-delay:${.15+i*.08}s;opacity:0;animation-fill-mode:forwards"
+          onclick="setLang('${l.code}')">
+          <span class="lang-flag">${l.flag}</span>
+          <div><p class="lang-native">${l.native}</p><p class="lang-sub">${l.sub}</p></div>
+          ${S.lang===l.code?`<div class="lang-check">${IC.checkSm}</div>`:''}
+        </button>`).join('')}
+    </div>
+    <button class="btn-primary fade-up" style="animation-delay:.4s;opacity:0;animation-fill-mode:forwards" onclick="goTo(1)">
+      ${t.continueButton}
+      <span style="${S.lang==='ar'?'transform:rotate(180deg);display:inline-flex':''}">${IC.arrRlg}</span>
+    </button>
+  </div>`;
+}
+
+function artPage(){
+  const t=T[S.lang];const isRTL=S.lang==='ar';
+  return `<div style="min-height:calc(100vh - 64px);background:#f9fafb" dir="${isRTL?'rtl':'ltr'}">
+    <div class="art-hero">
+      <div class="art-hero-inner">
+        <div class="fade-up" style="animation-fill-mode:forwards">
+          <p class="art-tagline">${t.tagline}</p>
+          <h1 class="art-title">${t.articlesTitle}</h1>
+          <p class="art-subtitle">${t.articlesSubtitle}</p>
+        </div>
+        <div class="fade-up" style="animation-delay:.15s;opacity:0;animation-fill-mode:forwards">
+          <button class="btn-book" onclick="goTo(2)">
+            <div class="btn-book-icon">${IC.calBook}</div>
+            <span>${t.bookButton}</span>
+            <span style="${isRTL?'transform:rotate(180deg);display:inline-flex':''}">${IC.arrR}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="art-grid-wrap">
+      <div class="art-grid">
+        ${t.articles.map((a,i)=>`
+          <article class="art-card fade-up" style="animation-delay:${.2+i*.1}s;opacity:0;animation-fill-mode:forwards">
+            <div class="art-accent"></div>
+            <div class="art-body">
+              <div class="art-meta">
+                <span class="art-tag ${a.tagClass}">${a.tag}</span>
+                <span class="art-date">${a.date}</span>
+              </div>
+              <h2 class="art-card-title">${a.title}</h2>
+              <p class="art-excerpt">${a.excerpt}</p>
+              <button class="art-read-more">
+                ${t.readMore}
+                <span style="${isRTL?'transform:rotate(180deg);display:inline-flex':''}">${IC.arrR}</span>
+              </button>
+            </div>
+          </article>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function stepper(){
+  const t=T[S.lang];const fi=S.step-2;
+  const steps=[t.stepPersonal,t.stepCenter,t.stepConfirm];
+  return `<div class="stepper fade-in">
+    ${steps.map((lbl,i)=>{
+      const done=fi>i,curr=fi===i;
+      const cls=done?'done':curr?'curr':'pend';
+      return `<div class="step-col">
+        <div class="step-row">
+          ${i>0?`<div class="step-line ${fi>i-1?'done':'pend'}"></div>`:''}
+          <div class="step-circle ${cls}">${done?IC.checkStep:(i+1)}</div>
+          ${i<2?`<div class="step-line ${fi>i?'done':'pend'}"></div>`:''}
+        </div>
+        <p class="step-label">${lbl}</p>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function personalStep(){
+  const t=T[S.lang];
+  return `<div class="form-card fade-up">
+    <div class="form-card-hdr">
+      <div class="form-card-icon">${IC.person}</div>
+      <h2 class="form-card-title">${t.personalTitle}</h2>
+    </div>
+    <div class="form-grid">
+      <div>
+        <label class="field-label">${t.name}</label>
+        <input class="form-input" type="text" value="${esc(S.form.name)}" placeholder="${t.namePH}" oninput="S.form.name=this.value">
+      </div>
+      <div>
+        <label class="field-label">${t.firstName}</label>
+        <input class="form-input" type="text" value="${esc(S.form.firstName)}" placeholder="${t.firstNamePH}" oninput="S.form.firstName=this.value">
+      </div>
+      <div>
+        <label class="field-label">${t.carType}</label>
+        <div class="field-wrap">
+          <div class="field-icon">${IC.car}</div>
+          <input class="form-input icon" type="text" value="${esc(S.form.carType)}" placeholder="${t.carTypePH}" oninput="S.form.carType=this.value">
+        </div>
+      </div>
+      <div>
+        <label class="field-label">${t.registration}</label>
+        <div class="field-wrap">
+          <div class="field-icon">${IC.plate}</div>
+          <input class="form-input icon" type="text" value="${esc(S.form.registration)}" placeholder="${t.regPH}" oninput="S.form.registration=this.value">
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function centerStep(){
+  const t=T[S.lang];
+  return `<div class="form-card fade-up">
+    <div class="form-card-hdr">
+      <div class="form-card-icon">${IC.pin}</div>
+      <h2 class="form-card-title">${t.centerTitle}</h2>
+    </div>
+    <div class="field-group">
+      <div>
+        <label class="field-label">${t.center}</label>
+        <div class="sel-wrap">
+          <select class="form-input" onchange="S.form.center=this.value">
+            <option value="">${t.selectCenter}</option>
+            ${t.centers.map(c=>`<option value="${c}"${S.form.center===c?' selected':''}>${c}</option>`).join('')}
+          </select>
+          <div class="sel-arr">${IC.chevD}</div>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">${t.visitType}</label>
+        <div class="visit-grid">
+          ${t.visitTypes.map(v=>`<button class="vt-btn${S.form.visitType===v?' sel':''}" data-vt="${v}" onclick="setVT('${v}')">${v}</button>`).join('')}
+        </div>
+      </div>
+      <div>
+        <label class="field-label">${t.date}</label>
+        <div class="field-wrap">
+          <div class="field-icon">${IC.cal}</div>
+          <input class="form-input icon" type="date" value="${S.form.date}" min="${TODAY}" onchange="S.form.date=this.value">
+        </div>
+      </div>
+      <div>
+        <label class="field-label">${t.time}</label>
+        <div class="time-grid">
+          ${SLOTS.map(sl=>`<button class="ts-btn${S.form.time===sl?' sel':''}" data-slot="${sl}" onclick="setTS('${sl}')">${sl}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function confirmStep(){
+  const t=T[S.lang];
+  if(S.confirmed){
+    return `<div class="form-card fade-up">
+      <div class="success-card">
+        <div class="success-icon">${IC.checkOk}</div>
+        <h2 class="success-title">${t.successMessage}</h2>
+        <p class="success-info">${S.form.date} — ${S.form.time} · ${S.form.center}</p>
+      </div>
+    </div>`;
+  }
+  const rows=[
+    {icon:'👤',label:t.labelName,val:`${S.form.firstName} ${S.form.name}`},
+    {icon:'🚗',label:t.labelCar,val:S.form.carType},
+    {icon:'🔖',label:t.labelReg,val:S.form.registration},
+    {icon:'📍',label:t.labelCenter,val:S.form.center},
+    {icon:'📋',label:t.labelVisit,val:S.form.visitType},
+    {icon:'📅',label:t.labelDate,val:S.form.date},
+    {icon:'🕐',label:t.labelTime,val:S.form.time},
+  ].filter(r=>r.val&&r.val.trim());
+  return `<div class="form-card fade-up">
+    <div class="form-card-hdr">
+      <div class="form-card-icon">${IC.clip}</div>
+      <h2 class="form-card-title">${t.confirmTitle}</h2>
+      <p style="color:#9ca3af;font-size:.875rem;margin-top:4px">${t.confirmSubtitle}</p>
+    </div>
+    <div class="summary-tbl">
+      ${rows.map(r=>`<div class="sum-row"><span class="sum-icon">${r.icon}</span><span class="sum-label">${r.label}</span><span class="sum-val">${r.val}</span></div>`).join('')}
+    </div>
+    <button class="btn-confirm" onclick="doConfirm()">${IC.checkConf} ${t.confirmButton}</button>
+  </div>`;
+}
+
+function formSection(){
+  const t=T[S.lang];const isRTL=S.lang==='ar';
+  const backArr=isRTL?IC.arrR:IC.arrL;
+  const nextArr=isRTL?IC.arrL:IC.arrR;
+  return `<div class="form-section" dir="${isRTL?'rtl':'ltr'}">
+    <div class="form-inner">
+      ${stepper()}
+      <div class="mb-8">
+        ${S.step===2?personalStep():''}
+        ${S.step===3?centerStep():''}
+        ${S.step===4?confirmStep():''}
+      </div>
+      ${!S.confirmed?`<div class="nav-btns">
+        <button class="btn-back" onclick="goTo(${S.step-1})">${backArr} ${t.backButton}</button>
+        ${S.step<4?`<button class="btn-next" onclick="goTo(${S.step+1})">${t.nextButton} ${nextArr}</button>`:''}
+      </div>`:''}
+    </div>
+  </div>`;
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function render(){
+  const isRTL=S.lang==='ar';
+  document.getElementById('app').innerHTML=`<div style="min-height:100vh;background:#f9fafb" dir="${isRTL?'rtl':'ltr'}">
+    ${hdr()}
+    ${S.step===0?langPage():''}
+    ${S.step===1?artPage():''}
+    ${S.step>=2?formSection():''}
+  </div>`;
+}
+
+render();
+</script>
+</body>
 </html>
